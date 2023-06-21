@@ -6,6 +6,7 @@ import {
 } from '@ionic/angular';
 import { MeuCepService } from '../services/meucep.service';
 import { ActivatedRoute } from '@angular/router';
+import { EnderecosService } from '../services/enderecos.service';
 
 @Component({
   selector: 'app-home',
@@ -25,48 +26,44 @@ export class HomePage {
     estado: '',
   };
 
+  LabelBotao = 'Cadastrar';
+
   constructor(
     public mensagem: ToastController,
     public nav: NavController,
-    private cep: MeuCepService
-  ) {   }
+    private cep: MeuCepService,
+    public servico: EnderecosService
+  ) {}
 
-  ionViewDidEnter(){
-    if(localStorage.getItem('cep')){
-      this.editar();
-    }
-    else{
-      this.limpaDados();
-    }
+  ionViewDidEnter() {
+    this.limpaDados();
   }
 
   searchCEP(evento: any) {
     const cepDig = evento.detail.value;
     if (cepDig.length == 8) {
-      this.cep
-        .localizaCep(cepDig)
-        .subscribe(
-          (resp) => {
-            this.dados = resp;
-            if (!this.dados || this.dados.erro) {
-              this.exibeToast('CEP não encotrado', 'warning');
-            } else {
-              this.endereco.endereco = this.dados.logradouro;
-              this.endereco.bairro = this.dados.bairro;
-              this.endereco.cidade = this.dados.localidade;
-              this.endereco.estado = this.dados.uf;
-
-            }
-          },
-          (erro) => {
+      this.cep.localizaCep(cepDig).subscribe(
+        (resp) => {
+          this.dados = resp;
+          if (!this.dados || this.dados.erro) {
             this.exibeToast('CEP não encotrado', 'warning');
+          } else {
+            this.endereco.endereco = this.dados.logradouro;
+            this.endereco.bairro = this.dados.bairro;
+            this.endereco.cidade = this.dados.localidade;
+            this.endereco.estado = this.dados.uf;
           }
-        )
+        },
+        (erro) => {
+          this.exibeToast('CEP não encotrado', 'warning');
+        }
+      );
     }
   }
 
   cadastrar() {
-    if (this.endereco.cidade == '' ||
+    if (
+      this.endereco.cidade == '' ||
       this.endereco.estado == '' ||
       this.endereco.endereco == '' ||
       this.endereco.cep == '' ||
@@ -76,34 +73,48 @@ export class HomePage {
       this.exibeToast('Preencha os campos necessarios', 'danger');
     } else {
       this.salvamento();
-      this.nav.navigateForward('conclusao')
-
+      this.nav.navigateForward('conclusao');
     }
   }
 
-  salvamento(){
-    localStorage.setItem("endereco", this.endereco.endereco)
-    localStorage.setItem("cep", this.endereco.cep)
-    localStorage.setItem("numero", this.endereco.numero)
-    localStorage.setItem("bairro", this.endereco.bairro)
-    localStorage.setItem("cidade", this.endereco.cidade)
-    localStorage.setItem("estado", this.endereco.estado)
-    localStorage.setItem("comp", this.endereco.complemento)                
+  salvamento() {
+    // const copia = JSON.parse(JSON.stringify()
+
+    // this.enderecos.push(this.endereco)
+    this.servico.salvarEndereco(
+      this.endereco.endereco,
+      this.endereco.numero,
+      this.endereco.cep,
+      this.endereco.complemento,
+      this.endereco.bairro,
+      this.endereco.cidade,
+      this.endereco.estado,
+    );
+    this.nav.navigateRoot('conclusao')
   }
 
-  limpaDados(){
-      this.endereco.cidade = '';
-      this.endereco.estado = '';
-      this.endereco.endereco = '';
-      this.endereco.cep = '';
-      this.endereco.bairro = '';
-      this.endereco.complemento = '';
-      this.endereco.numero = '';
+  limpaDados() {
+    this.LabelBotao = 'Cadastrar';
+    this.endereco.cidade = '';
+    this.endereco.estado = '';
+    this.endereco.endereco = '';
+    this.endereco.cep = '';
+    this.endereco.bairro = '';
+    this.endereco.complemento = '';
+    this.endereco.numero = '';
   }
 
-  editar(){
+  // editar() {
+  //   this.LabelBotao = 'Editar';
 
-  }
+  //   this.endereco.endereco = localStorage.getItem('endereco')!;
+  //   this.endereco.numero = localStorage.getItem('numero')!;
+  //   this.endereco.complemento = localStorage.getItem('comp')!;
+  //   this.endereco.bairro = localStorage.getItem('bairro')!;
+  //   this.endereco.cep = localStorage.getItem('cep')!;
+  //   this.endereco.cidade = localStorage.getItem('cidade')!;
+  //   this.endereco.estado = localStorage.getItem('estado')!;
+  // }
 
   async exibeToast(msg: string, cor: string) {
     const toast = await this.mensagem.create({

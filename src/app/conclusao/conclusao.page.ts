@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
+import { EnderecosService } from '../services/enderecos.service';
 
 @Component({
   selector: 'app-conclusao',
@@ -7,7 +8,6 @@ import { AlertController, NavController } from '@ionic/angular';
   styleUrls: ['./conclusao.page.scss'],
 })
 export class ConclusaoPage implements OnInit {
-
   endereco = {
     endereco: '',
     numero: '',
@@ -17,44 +17,48 @@ export class ConclusaoPage implements OnInit {
     cidade: '',
     estado: '',
   };
+  public enderecos: any[] = [];
 
   constructor(
     public nav: NavController,
-    public alerta: AlertController) { }
+    public alerta: AlertController,
+    public servicos: EnderecosService
+  ) {}
 
   ngOnInit() {}
 
-  ionViewDidEnter(){
+  ionViewDidEnter() {
     this.carregaDados();
   }
 
-  async voltar(){
+  async voltar() {
     const voltando = await this.alerta.create({
       header: 'ATENÇÃO!',
-      message: 'Deseja retornar? Perderá todos os dados!',
-      buttons: [{
-        text: 'Não',
-        role: 'cancel'
-      },{
-        text: 'Retornar',
-        handler: () =>{
-          localStorage.clear();
-          this.nav.navigateBack('/');
-        }
-      }]
+      message: 'Deseja adicionar um novo endereço?',
+      buttons: [
+        {
+          text: 'Não',
+          role: 'cancel',
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            this.nav.navigateBack('/');
+          },
+        },
+      ],
     });
 
     await voltando.present();
   }
 
-  carregaDados(){
+  editar() {
+    this.nav.navigateRoot('/');
+  }
 
-    this.endereco.endereco =  localStorage.getItem('endereco')!;
-    this.endereco.numero = localStorage.getItem('numero')!;
-    this.endereco.complemento = localStorage.getItem('comp')!;
-    this.endereco.bairro = localStorage.getItem('bairro')!;
-    this.endereco.cep = localStorage.getItem('cep')!;
-    this.endereco.cidade = localStorage.getItem('cidade')!;
-    this.endereco.estado = localStorage.getItem('estado')!;
+  carregaDados() {
+    if(this.servicos.listar()){
+      this.enderecos = this.servicos.listar()!;
+    }
   }
 }
