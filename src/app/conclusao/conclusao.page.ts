@@ -23,9 +23,9 @@ export class ConclusaoPage implements OnInit {
     public nav: NavController,
     public alerta: AlertController,
     public servicos: EnderecosService
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ionViewDidEnter() {
     this.carregaDados();
@@ -34,14 +34,10 @@ export class ConclusaoPage implements OnInit {
   async voltar() {
     const voltando = await this.alerta.create({
       header: 'ATENÇÃO!',
-      message: 'Deseja adicionar um novo endereço?',
+      message: 'Nenhum endereço encontrado, cadastre um novo!',
       buttons: [
         {
-          text: 'Não',
-          role: 'cancel',
-        },
-        {
-          text: 'Sim',
+          text: 'Ok',
           handler: () => {
             this.nav.navigateBack('/');
           },
@@ -52,13 +48,41 @@ export class ConclusaoPage implements OnInit {
     await voltando.present();
   }
 
-  editar() {
-    this.nav.navigateRoot('/');
+  async novo() {
+    const adicionando = await this.alerta.create({
+      header: 'ATENÇÃO!',
+      message: 'Deseja adicionar um novo endereço?',
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            this.nav.navigateRoot('/');
+          },
+        },
+        {
+          text: 'Cancelar',
+          handler: () => { }
+        }
+      ],
+    })
+
+    await adicionando.present();
   }
+  
 
   carregaDados() {
-    if(this.servicos.listar()){
-      this.enderecos = this.servicos.listar()!;
+      if(this.servicos.listar()){
+        this.enderecos = this.servicos.listar()!;
+
+    if (this.enderecos.length == 0) {
+      this.voltar()
     }
   }
+}
+
+Deletar(cep: string){
+
+  this.servicos.deletar(cep)
+  this.carregaDados();
+}
 }

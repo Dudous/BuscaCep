@@ -33,7 +33,7 @@ export class HomePage {
     public nav: NavController,
     private cep: MeuCepService,
     public servico: EnderecosService
-  ) {}
+  ) { }
 
   ionViewDidEnter() {
     this.limpaDados();
@@ -78,9 +78,6 @@ export class HomePage {
   }
 
   salvamento() {
-    // const copia = JSON.parse(JSON.stringify()
-
-    // this.enderecos.push(this.endereco)
     this.servico.salvarEndereco(
       this.endereco.endereco,
       this.endereco.numero,
@@ -88,9 +85,8 @@ export class HomePage {
       this.endereco.complemento,
       this.endereco.bairro,
       this.endereco.cidade,
-      this.endereco.estado,
+      this.endereco.estado
     );
-    this.nav.navigateRoot('conclusao')
   }
 
   limpaDados() {
@@ -103,18 +99,6 @@ export class HomePage {
     this.endereco.complemento = '';
     this.endereco.numero = '';
   }
-
-  // editar() {
-  //   this.LabelBotao = 'Editar';
-
-  //   this.endereco.endereco = localStorage.getItem('endereco')!;
-  //   this.endereco.numero = localStorage.getItem('numero')!;
-  //   this.endereco.complemento = localStorage.getItem('comp')!;
-  //   this.endereco.bairro = localStorage.getItem('bairro')!;
-  //   this.endereco.cep = localStorage.getItem('cep')!;
-  //   this.endereco.cidade = localStorage.getItem('cidade')!;
-  //   this.endereco.estado = localStorage.getItem('estado')!;
-  // }
 
   async exibeToast(msg: string, cor: string) {
     const toast = await this.mensagem.create({
